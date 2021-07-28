@@ -1,2 +1,4 @@
 rango-env/
 .vscode/
+progress_tests/
+**/__pycache__
