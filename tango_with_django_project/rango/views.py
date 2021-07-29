@@ -3,6 +3,9 @@ from rango.models import Category
 from rango.models import Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.urls import reverse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 
 # Create your views here.
 def index(request):
@@ -35,6 +38,7 @@ def show_category(request, category_name_slug):
     return render(request, "rango/category.html", context=context_dict)
 
 
+@login_required
 def add_category(request):
     form = CategoryForm()
 
@@ -50,6 +54,7 @@ def add_category(request):
     return render(request, "rango/add_category.html", {"form": form})
 
 
+@login_required
 def add_page(request, category_name_slug):
     try:
         category = Category.objects.get(slug=category_name_slug)
@@ -119,3 +124,34 @@ def register(request):
             "registered": registered,
         },
     )
+
+
+def user_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(username=username, password=password)
+
+        if user:
+            if user.is_active:
+                login(request, user)
+                return redirect(reverse("rango:index"))
+            else:
+                return HttpResponse("Your Rango account is disabled.")
+        else:
+            print(f"Invalid login details: {username}, {password}")
+            return HttpResponse("Invalid login details supplied.")
+    else:
+        return render(request, "rango/login.html")
+
+
+@login_required
+def restricted(request):
+    return render(request, "rango/login.html")
+
+
+@login_required
+def user_logout(request):
+    logout(request)
+    return redirect(reverse("rango:index"))
