@@ -1,2 +1,3 @@
 # DjangoRango
-Internet Technology coursework
+Internet Technology coursework (Rango Application)
+ID: 2599330W
